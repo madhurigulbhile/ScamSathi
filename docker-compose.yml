@@ -1,38 +1,18 @@
 
-
-name: ScamSathi CI Pipeline
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
-
-jobs:
-  backend-check:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Backend Dependencies
-        working-directory: backend
-        run: npm install
-
-      - name: Check Backend Syntax
-        working-directory: backend
-        run: node --check server.js
-
-      - name: Create Placeholder Environment File
-        run: touch backend/.env
-
-      - name: Validate Docker Compose
-        run: docker compose config -q
-
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: scamsathi-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://host.docker.internal:27017/scam_sathi
+      OLLAMA_URL: http://host.docker.internal:11434/api/chat
+      OLLAMA_MODEL: qwen2.5:3b
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
