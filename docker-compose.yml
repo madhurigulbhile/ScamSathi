@@ -1,0 +1,18 @@
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: scamsathi-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://host.docker.internal:27017/scam_sathi
+      OLLAMA_URL: http://host.docker.internal:11434/api/chat
+      OLLAMA_MODEL: qwen2.5:3b
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
